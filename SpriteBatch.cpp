@@ -195,6 +195,9 @@ unsigned SpriteBatch::GetPortionLength(unsigned start)
 
     while (true)
     {
+        if (count >= MAX_PORTION_SIZE)
+            break;
+
         unsigned nextSpriteIndex = start + count;
         
         // Достигнут конец вектора.
