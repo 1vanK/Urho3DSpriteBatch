@@ -16,9 +16,10 @@
 // в вершинном буфере каждый спрайт занимает 4 элемента.
 #define VERTICES_PER_SPRITE 4
 
-// Максимальное число спрайтов, выводимых за один раз.
-// Так как используются 16-битные индексы и требуется 4 разных
-// индекса для каждого спрайта, то это значение равно (0xFFFF + 1) / 4.
+// Максимальное число выводимых за один раз спрайтов ограничивается
+// количеством уникальных индексов. Так как используются 16-битные
+// индексы и требуется 4 разных индекса для каждого спрайта,
+// то это значение равно (0xFFFF + 1) / 4.
 #define MAX_PORTION_SIZE 16384
 
 namespace Urho3D
@@ -176,7 +177,7 @@ void SpriteBatch::End()
 Matrix4 SpriteBatch::GetViewProjMatrix()
 {
     if (camera_)
-        return camera_->GetProjection() * camera_->GetView();
+        return camera_->GetGPUProjection() * camera_->GetView();
 
     Graphics* graphics = GetSubsystem<Graphics>();
     int w = graphics->GetWidth();
