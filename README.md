@@ -1,5 +1,7 @@
 # Urho3D SpriteBatch
 
+(I do not know why, but OpenGL version works faster than DirectX on my PC).
+
 License: Public Domain
 
 ```
