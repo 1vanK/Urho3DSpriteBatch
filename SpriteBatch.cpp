@@ -59,7 +59,7 @@ SpriteBatch::SpriteBatch(Context *context) :
     indexBuffer_->Unlock();
 
     vertexBuffer_->SetSize(MAX_PORTION_SIZE * VERTICES_PER_SPRITE,
-                           MASK_POSITION | MASK_COLOR | MASK_TEXCOORD1, true);
+                           MASK_POSITION | MASK_COLOR | MASK_TEXCOORD1, false);
 }
 
 SpriteBatch::~SpriteBatch()
