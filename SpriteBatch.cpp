@@ -317,7 +317,7 @@ void SpriteBatch::RenderPortion(unsigned start, unsigned count)
     vertexBuffer_->Unlock();
     
     graphics->SetTexture(0, texture);
-    graphics->Draw(TRIANGLE_LIST, 0, count * INDICES_PER_SPRITE, 0, sprites_.Size() * VERTICES_PER_SPRITE);
+    graphics->Draw(TRIANGLE_LIST, 0, count * INDICES_PER_SPRITE, 0, count * VERTICES_PER_SPRITE);
 }
 
 }
