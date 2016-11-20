@@ -146,7 +146,7 @@ void SpriteBatch::DrawString(String text, Vector2& position, Font* font, int fon
         };
 
         sprites_.Push(sprite);
-        charPos.x_ += glyph->width_ + glyph->offsetX_;
+        charPos.x_ += glyph->advanceX_;
     }
 }
 
