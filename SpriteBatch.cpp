@@ -134,7 +134,8 @@ void SpriteBatch::DrawString(String text, Vector2& position, Font* font, int fon
         SBSprite sprite
         {
             Rect(glyph->x_, glyph->y_, glyph->x_ + glyph->width_, glyph->y_ + glyph->height_),
-            Rect(charPos.x_, charPos.y_, charPos.x_ + glyph->width_, charPos.y_ + glyph->height_),
+            Rect(charPos.x_ + glyph->offsetX_, charPos.y_ + glyph->offsetY_,
+                charPos.x_ + glyph->width_ + glyph->offsetX_, charPos.y_ + glyph->height_ + glyph->offsetY_),
             color,
             Vector2(0.0f, 0.0f), // origin нужно использовать
             0.0f, // rotation нужно использовать
@@ -145,7 +146,7 @@ void SpriteBatch::DrawString(String text, Vector2& position, Font* font, int fon
         };
 
         sprites_.Push(sprite);
-        charPos.x_ += glyph->width_;
+        charPos.x_ += glyph->width_ + glyph->offsetX_;
     }
 }
 
