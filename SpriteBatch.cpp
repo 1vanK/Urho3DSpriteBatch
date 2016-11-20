@@ -59,7 +59,7 @@ SpriteBatch::SpriteBatch(Context *context) :
     indexBuffer_->Unlock();
 
     vertexBuffer_->SetSize(MAX_PORTION_SIZE * VERTICES_PER_SPRITE,
-                           MASK_POSITION | MASK_COLOR | MASK_TEXCOORD1, false);
+                           MASK_POSITION | MASK_COLOR | MASK_TEXCOORD1, true);
 }
 
 SpriteBatch::~SpriteBatch()
@@ -241,7 +241,7 @@ void SpriteBatch::RenderPortion(unsigned start, unsigned count)
 
     Texture2D* texture = sprites_[start].texture_;
     
-    SBVertex* vertices = (SBVertex*)vertexBuffer_->Lock(0, count * VERTICES_PER_SPRITE);
+    SBVertex* vertices = (SBVertex*)vertexBuffer_->Lock(0, count * VERTICES_PER_SPRITE, true);
     float invw = 1.0f / texture->GetWidth();
     float invh = 1.0f / texture->GetHeight();
     for (unsigned i = 0; i < count; i++)
@@ -258,6 +258,8 @@ void SpriteBatch::RenderPortion(unsigned start, unsigned count)
             dest.min_ -= origin;
             dest.max_ -= origin;
 
+            // Для экрана ось Y направлена вниз, поэтому лицевая грань (по часовой стрелке) задана так.
+            // Но нет большой разницы, так как спрайты двусторонние.
             vertices[i * VERTICES_PER_SPRITE + 0].position_ = Vector3(dest.min_.x_, dest.min_.y_, z_);
             vertices[i * VERTICES_PER_SPRITE + 1].position_ = Vector3(dest.max_.x_, dest.min_.y_, z_);
             vertices[i * VERTICES_PER_SPRITE + 2].position_ = Vector3(dest.max_.x_, dest.max_.y_, z_);
