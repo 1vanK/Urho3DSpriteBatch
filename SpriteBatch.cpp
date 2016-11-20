@@ -122,6 +122,11 @@ void SpriteBatch::DrawString(String text, Vector2& position, Font* font, int fon
     FontFace* face = font->GetFace(fontSize);
     Vector2 charPos = position;
 
+    String psDefines = "";
+
+    if (font->IsSDFFont())
+        psDefines = "SIGNED_DISTANCE_FIELD";
+
     for (unsigned i = 0; i < unicodeText.Size(); i++)
     {
         const FontGlyph* glyph = face->GetGlyph(unicodeText[i]);
@@ -135,8 +140,8 @@ void SpriteBatch::DrawString(String text, Vector2& position, Font* font, int fon
             0.0f, // rotation нужно использовать
             face->GetTextures()[glyph->page_],
             SBE_NONE, // effects нужно использовать
-            graphics->GetShader(VS, "Text", "DIFFMAP VERTEXCOLOR"),
-            graphics->GetShader(PS, "Text", "DIFFMAP VERTEXCOLOR")
+            graphics->GetShader(VS, "Text"),
+            graphics->GetShader(PS, "Text", psDefines)
         };
 
         sprites_.Push(sprite);
