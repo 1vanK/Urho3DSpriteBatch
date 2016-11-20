@@ -1,6 +1,6 @@
 # Urho3D SpriteBatch
 
-(I do not know why, but OpenGL version works faster than DirectX on my PC).
+(I do not know why, but OpenGL version works faster than DirectX 9 on my PC).
 
 License: Public Domain
 
