@@ -107,6 +107,14 @@ private:
     // Спрайты, которые ожидают рендеринга.
     PODVector<SBSprite> sprites_;
 
+    // Кэширование часто используемых вещей.
+    Graphics* graphics_;
+    ShaderVariation* spriteVS_;
+    ShaderVariation* spritePS_;
+    ShaderVariation* textVS_;
+    ShaderVariation* ttfTextPS_;
+    ShaderVariation* sdfTextPS_;
+
     // Режим наложения.
     BlendMode blendMode_;
 

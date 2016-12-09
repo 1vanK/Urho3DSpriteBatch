@@ -60,6 +60,13 @@ SpriteBatch::SpriteBatch(Context *context) :
 
     vertexBuffer_->SetSize(MAX_PORTION_SIZE * VERTICES_PER_SPRITE,
                            MASK_POSITION | MASK_COLOR | MASK_TEXCOORD1, true);
+
+    graphics_ = GetSubsystem<Graphics>();
+    spriteVS_ = graphics_->GetShader(VS, "Basic", "DIFFMAP VERTEXCOLOR");
+    spritePS_ = graphics_->GetShader(PS, "Basic", "DIFFMAP VERTEXCOLOR");
+    textVS_ = graphics_->GetShader(VS, "Text");
+    ttfTextPS_ = graphics_->GetShader(PS, "Text");
+    sdfTextPS_ = graphics_->GetShader(PS, "Text", "SIGNED_DISTANCE_FIELD");
 }
 
 SpriteBatch::~SpriteBatch()
@@ -79,8 +86,6 @@ void SpriteBatch::Begin(BlendMode blendMode, CompareMode compareMode, float z, C
 void SpriteBatch::Draw(Texture2D* texture, Rect& destination, Rect* source,
     Color color, Vector2 origin, float rotation, SBEffects effects)
 {
-    Graphics* graphics = GetSubsystem<Graphics>();
-
     SBSprite sprite
     {
         source ? *source : Rect(0, 0, texture->GetWidth(), texture->GetHeight()),
@@ -90,8 +95,8 @@ void SpriteBatch::Draw(Texture2D* texture, Rect& destination, Rect* source,
         rotation,
         texture,
         SBE_NONE,
-        graphics->GetShader(VS, "Basic", "DIFFMAP VERTEXCOLOR"),
-        graphics->GetShader(PS, "Basic", "DIFFMAP VERTEXCOLOR")
+        spriteVS_,
+        spritePS_
     };
 
     sprites_.Push(sprite);
@@ -118,14 +123,8 @@ void SpriteBatch::DrawString(String text, Vector2& position, Font* font, int fon
     for (unsigned i = 0; i < text.Length();)
         unicodeText.Push(text.NextUTF8Char(i));
 
-    Graphics* graphics = GetSubsystem<Graphics>(); 
     FontFace* face = font->GetFace(fontSize);
     Vector2 charPos = position;
-
-    String psDefines = "";
-
-    if (font->IsSDFFont())
-        psDefines = "SIGNED_DISTANCE_FIELD";
 
     for (unsigned i = 0; i < unicodeText.Size(); i++)
     {
@@ -141,8 +140,8 @@ void SpriteBatch::DrawString(String text, Vector2& position, Font* font, int fon
             0.0f, // rotation нужно использовать
             face->GetTextures()[glyph->page_],
             SBE_NONE, // effects нужно использовать
-            graphics->GetShader(VS, "Text"),
-            graphics->GetShader(PS, "Text", psDefines)
+            textVS_,
+            font->IsSDFFont() ? sdfTextPS_ : ttfTextPS_
         };
 
         sprites_.Push(sprite);
@@ -152,19 +151,17 @@ void SpriteBatch::DrawString(String text, Vector2& position, Font* font, int fon
 
 void SpriteBatch::End()
 {
-    Graphics* graphics = GetSubsystem<Graphics>();
-
-    graphics->ClearParameterSources(); // Нужно ли это?
-    graphics->SetCullMode(CULL_NONE);
-    graphics->SetDepthTest(compareMode_);
-    graphics->SetBlendMode(blendMode_);
-    graphics->SetDepthWrite(false);
-    graphics->SetStencilTest(false);
-    graphics->SetScissorTest(false);
-    graphics->SetColorWrite(true); // Нужно ли это?
-    graphics->ResetRenderTargets(); // Нужно ли это?
-    graphics->SetIndexBuffer(indexBuffer_);
-    graphics->SetVertexBuffer(vertexBuffer_);
+    graphics_->ClearParameterSources(); // Нужно ли это?
+    graphics_->SetCullMode(CULL_NONE);
+    graphics_->SetDepthTest(compareMode_);
+    graphics_->SetBlendMode(blendMode_);
+    graphics_->SetDepthWrite(false);
+    graphics_->SetStencilTest(false);
+    graphics_->SetScissorTest(false);
+    graphics_->SetColorWrite(true); // Нужно ли это?
+    graphics_->ResetRenderTargets(); // Нужно ли это?
+    graphics_->SetIndexBuffer(indexBuffer_);
+    graphics_->SetVertexBuffer(vertexBuffer_);
 
     unsigned startSpriteIndex = 0;
     while (true)
@@ -185,9 +182,8 @@ Matrix4 SpriteBatch::GetViewProjMatrix()
     if (camera_)
         return camera_->GetGPUProjection() * camera_->GetView();
 
-    Graphics* graphics = GetSubsystem<Graphics>();
-    int w = graphics->GetWidth();
-    int h = graphics->GetHeight();
+    int w = graphics_->GetWidth();
+    int h = graphics_->GetHeight();
 
     return Matrix4(2.0f / w,    0.0f,         0.0f,   -1.0f,
                    0.0f,        -2.0f / h,    0.0f,    1.0f,
@@ -229,15 +225,13 @@ unsigned SpriteBatch::GetPortionLength(unsigned start)
 // Никакие проверки не производятся, все входные данные должны быть корректными.
 void SpriteBatch::RenderPortion(unsigned start, unsigned count)
 {
-    Graphics* graphics = GetSubsystem<Graphics>();
-
-    graphics->SetShaders(sprites_[start].vertexShader_, sprites_[start].pixelShader_);
-    if (graphics->NeedParameterUpdate(SP_OBJECT, this))
-        graphics->SetShaderParameter(VSP_MODEL, Matrix3x4::IDENTITY);
-    if (graphics->NeedParameterUpdate(SP_CAMERA, this))
-        graphics->SetShaderParameter(VSP_VIEWPROJ, GetViewProjMatrix());
-    if (graphics->NeedParameterUpdate(SP_MATERIAL, this))
-        graphics->SetShaderParameter(PSP_MATDIFFCOLOR, Color(1.0f, 1.0f, 1.0f, 1.0f));
+    graphics_->SetShaders(sprites_[start].vertexShader_, sprites_[start].pixelShader_);
+    if (graphics_->NeedParameterUpdate(SP_OBJECT, this))
+        graphics_->SetShaderParameter(VSP_MODEL, Matrix3x4::IDENTITY);
+    if (graphics_->NeedParameterUpdate(SP_CAMERA, this))
+        graphics_->SetShaderParameter(VSP_VIEWPROJ, GetViewProjMatrix());
+    if (graphics_->NeedParameterUpdate(SP_MATERIAL, this))
+        graphics_->SetShaderParameter(PSP_MATDIFFCOLOR, Color(1.0f, 1.0f, 1.0f, 1.0f));
 
     Texture2D* texture = sprites_[start].texture_;
     
@@ -318,8 +312,8 @@ void SpriteBatch::RenderPortion(unsigned start, unsigned count)
     }
     vertexBuffer_->Unlock();
     
-    graphics->SetTexture(0, texture);
-    graphics->Draw(TRIANGLE_LIST, 0, count * INDICES_PER_SPRITE, 0, count * VERTICES_PER_SPRITE);
+    graphics_->SetTexture(0, texture);
+    graphics_->Draw(TRIANGLE_LIST, 0, count * INDICES_PER_SPRITE, 0, count * VERTICES_PER_SPRITE);
 }
 
 }
