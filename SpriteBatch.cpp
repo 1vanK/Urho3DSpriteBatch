@@ -164,15 +164,10 @@ void SpriteBatch::End()
     graphics_->SetVertexBuffer(vertexBuffer_);
 
     unsigned startSpriteIndex = 0;
-    while (true)
+    while (startSpriteIndex != sprites_.Size())
     {
         unsigned count = GetPortionLength(startSpriteIndex);
         RenderPortion(startSpriteIndex, count);
-
-        // Прекращаем, если все спрайты отрендерены.
-        if (startSpriteIndex + count == sprites_.Size())
-            break;
-        
         startSpriteIndex += count;
     }
 }
