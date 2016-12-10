@@ -1,6 +1,7 @@
 # Urho3D SpriteBatch
 
-(I do not know why, but OpenGL version works faster than DirectX 9 on my PC).
+In my tests Urho3D DX9 version has identical perfomance with XNA (DirectX 9) and Urho3D DX11 with MonoGame (DirectX 11).<br>
+Perfomance: DirecX 11 > OpenGL > DirectX 9.
 
 License: Public Domain
 
