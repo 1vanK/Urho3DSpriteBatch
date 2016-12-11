@@ -140,6 +140,9 @@ public:
         SubscribeToEvent(E_ENDVIEWRENDER, URHO3D_HANDLER(Game, HandleEndViewRender));
     }
 
+    float angle_ = 0.0f;
+    float scale_ = 0.0f;
+
     void HandleUpdate(StringHash eventType, VariantMap& eventData)
     {
         using namespace Update;
@@ -157,6 +160,11 @@ public:
             fpsValue_ = fpsFrameCounter_;
             fpsFrameCounter_ = 0;
         }
+
+        angle_ += timeStep * 100.0f;
+        angle_ = fmod(angle_, 360.0f);
+
+        scale_ += timeStep;
     }
 
     void HandleEndViewRender(StringHash eventType, VariantMap& eventData)
@@ -167,15 +175,22 @@ public:
         spriteBatch_->Begin();
 
         for (int i = 0; i < 20000; i++)
-            spriteBatch_->Draw(ball, Vector2(Random(0.0f, 800.0f), Random(0.0f, 600.0f)), nullptr, Color::WHITE, Vector2(0, 0));
+            spriteBatch_->Draw(ball, Vector2(Random(0.0f, 800.0f), Random(0.0f, 600.0f)), nullptr, Color::WHITE);
 
-        spriteBatch_->Draw(head, Vector2(200.0f, 200.0f), nullptr, Color::WHITE, Vector2::ZERO, 0.0f, SBE_FLIP_BOTH);
+        spriteBatch_->Draw(head, Vector2(200.0f, 200.0f), nullptr, Color::WHITE, 0.0f, Vector2::ZERO, 1.0f, SBE_FLIP_BOTH);
+
+        float scale = cos(scale_) * 2.0f;
+        Vector2 origin = Vector2(head->GetWidth() / 2, head->GetHeight() / 2);
+        spriteBatch_->Draw(head, Vector2(400.0f, 300.0f), nullptr, Color::WHITE, angle_, origin, scale);
 
         spriteBatch_->DrawString(String("FPS: ") + String(fpsValue_), Vector2(50.0f, 50.0f),
             CACHE->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40, Color::RED);
 
         spriteBatch_->DrawString(String("Mirrored Text"), Vector2(250.0f, 200.0f),
-            CACHE->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40, Color::RED, 0.0f, Vector2::ZERO, SBE_FLIP_BOTH);
+            CACHE->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40, Color::RED, 0.0f, Vector2::ZERO, 1.0f, SBE_FLIP_BOTH);
+
+        //spriteBatch_->DrawString(String("Some Text"), Vector2(250.0f, 200.0f),
+        //    CACHE->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40, Color::GREEN, angle_, Vector2::ZERO, scale, SBE_FLIP_BOTH);
 
         spriteBatch_->End();
     }

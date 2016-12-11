@@ -73,13 +73,13 @@ public:
     void End();
 
     void Draw(Texture2D* texture, Rect& destination, Rect* source = nullptr,
-        Color color = Color::WHITE, Vector2 origin = Vector2::ZERO, float rotation = 0.0f, SBEffects effects = SBE_NONE);
+        Color color = Color::WHITE, float rotation = 0.0f, Vector2 origin = Vector2::ZERO, float scale = 1.0f, SBEffects effects = SBE_NONE);
 
     void Draw(Texture2D* texture, Vector2& position, Rect* source = nullptr,
-        Color color = Color::WHITE, Vector2 origin = Vector2::ZERO, float rotation = 0.0f, SBEffects effects = SBE_NONE);
+        Color color = Color::WHITE, float rotation = 0.0f, Vector2 origin = Vector2::ZERO, float scale = 1.0f, SBEffects effects = SBE_NONE);
 
     void DrawString(String text, Vector2& position, Font* font, int fontSize = 20, Color color = Color::WHITE,
-        float rotation = 0.0f, Vector2 origin = Vector2::ZERO, SBEffects effects = SBE_NONE);
+        float rotation = 0.0f, Vector2 origin = Vector2::ZERO, float scale = 1.0f, SBEffects effects = SBE_NONE);
 
 private:
 
@@ -89,8 +89,9 @@ private:
         Rect source_;
         Rect destination_;
         Color color_;
-        Vector2 origin_;
         float rotation_;
+        Vector2 origin_;
+        float scale_;
         Texture2D* texture_;
         SBEffects effects_;
 

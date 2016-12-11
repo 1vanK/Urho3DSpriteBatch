@@ -84,15 +84,16 @@ void SpriteBatch::Begin(BlendMode blendMode, CompareMode compareMode, float z, C
 }
 
 void SpriteBatch::Draw(Texture2D* texture, Rect& destination, Rect* source,
-    Color color, Vector2 origin, float rotation, SBEffects effects)
+    Color color, float rotation, Vector2 origin, float scale, SBEffects effects)
 {
     SBSprite sprite
     {
         source ? *source : Rect(0, 0, texture->GetWidth(), texture->GetHeight()),
         destination,
         color,
-        origin,
         rotation,
+        origin,
+        scale,
         texture,
         effects,
         spriteVS_,
@@ -103,7 +104,7 @@ void SpriteBatch::Draw(Texture2D* texture, Rect& destination, Rect* source,
 }
 
 void SpriteBatch::Draw(Texture2D* texture, Vector2& position, Rect* source,
-    Color color, Vector2 origin, float rotation, SBEffects effects)
+    Color color, float rotation, Vector2 origin, float scale, SBEffects effects)
 {
     Rect destination
     {
@@ -113,11 +114,11 @@ void SpriteBatch::Draw(Texture2D* texture, Vector2& position, Rect* source,
         position.y_ + texture->GetHeight()
     };
 
-    Draw(texture, destination, source, color, origin, rotation, effects);
+    Draw(texture, destination, source, color, rotation, origin, scale, effects);
 }
 
 void SpriteBatch::DrawString(String text, Vector2& position, Font* font, int fontSize, Color color,
-    float rotation, Vector2 origin, SBEffects effects)
+    float rotation, Vector2 origin, float scale, SBEffects effects)
 {
     PODVector<unsigned> unicodeText;
     for (unsigned i = 0; i < text.Length();)
@@ -141,8 +142,9 @@ void SpriteBatch::DrawString(String text, Vector2& position, Font* font, int fon
                     Rect(charPos.x_ + glyph->offsetX_, charPos.y_ + glyph->offsetY_,
                         charPos.x_ + glyph->width_ + glyph->offsetX_, charPos.y_ + glyph->height_ + glyph->offsetY_),
                 color,
-                Vector2(0.0f, 0.0f), // origin нужно использовать
-                0.0f, // rotation нужно использовать
+                rotation,
+                origin,
+                scale,
                 face->GetTextures()[glyph->page_],
                 effects,
                 textVS_,
@@ -168,8 +170,9 @@ void SpriteBatch::DrawString(String text, Vector2& position, Font* font, int fon
                     Rect(charPos.x_ + glyph->offsetX_, charPos.y_ + glyph->offsetY_,
                         charPos.x_ + glyph->width_ + glyph->offsetX_, charPos.y_ + glyph->height_ + glyph->offsetY_),
                 color,
-                Vector2(0.0f, 0.0f), // origin нужно использовать
-                0.0f, // rotation нужно использовать
+                rotation,
+                origin,
+                scale,
                 face->GetTextures()[glyph->page_],
                 effects,
                 textVS_,
@@ -274,8 +277,9 @@ void SpriteBatch::RenderPortion(unsigned start, unsigned count)
         Rect src = sprite->source_;
         Vector2 origin = sprite->origin_;
         SBEffects effects = sprite->effects_;
+        float scale = sprite->scale_;
 
-        if (sprite->rotation_ == 0.0f)
+        if (sprite->rotation_ == 0.0f && sprite->scale_ == 1.0f)
         {
             // Если спрайт не повернут, то прорисовка очень проста.
             dest.min_ -= origin;
@@ -296,15 +300,23 @@ void SpriteBatch::RenderPortion(unsigned start, unsigned count)
             Rect local(-origin, dest.max_ - dest.min_ - origin);
 
             // Матрица поворачивает вершину в локальных координатах, а затем
-            // смещает ее назад в мировые координаты (можно еще масштабирование добавить).
+            // смещает ее назад в мировые координаты.
             float sin, cos;
             SinCos(-sprite->rotation_, sin, cos); // Минус, чтобы было вращение по часовой стрелке.
             Matrix3 transform
             {
-                 cos, sin, dest.min_.x_,
-                -sin, cos, dest.min_.y_,
-                    0,   0,            1
+                 cos, sin,    dest.min_.x_,
+                -sin, cos,    dest.min_.y_,
+                 0.0f, 0.0f,  1.0f
             };
+            Matrix3 scaleMatrix
+            {
+                scale, 0.0f,     0.0f,
+                0.0f,     scale, 0.0f,
+                0.0f,     0.0f,     1.0f
+            };
+
+            transform = transform * scaleMatrix;
 
             // В движке вектор умножается на матрицу справа (в отличие от шейдеров).
             // TransformedVector = TranslationMatrix * RotationMatrix * ScalingMatrix * OriginalVector.
