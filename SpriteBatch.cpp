@@ -94,7 +94,7 @@ void SpriteBatch::Draw(Texture2D* texture, Rect& destination, Rect* source,
         origin,
         rotation,
         texture,
-        SBE_NONE,
+        effects,
         spriteVS_,
         spritePS_
     };
@@ -126,26 +126,59 @@ void SpriteBatch::DrawString(String text, Vector2& position, Font* font, int fon
     FontFace* face = font->GetFace(fontSize);
     Vector2 charPos = position;
 
-    for (unsigned i = 0; i < unicodeText.Size(); i++)
+    if (effects & SBE_FLIP_HORIZONTALLY)
     {
-        const FontGlyph* glyph = face->GetGlyph(unicodeText[i]);
-        
-        SBSprite sprite
+        for (unsigned i = unicodeText.Size() - 1; i < unicodeText.Size(); i--)
         {
-            Rect(glyph->x_, glyph->y_, glyph->x_ + glyph->width_, glyph->y_ + glyph->height_),
-            Rect(charPos.x_ + glyph->offsetX_, charPos.y_ + glyph->offsetY_,
-                charPos.x_ + glyph->width_ + glyph->offsetX_, charPos.y_ + glyph->height_ + glyph->offsetY_),
-            color,
-            Vector2(0.0f, 0.0f), // origin нужно использовать
-            0.0f, // rotation нужно использовать
-            face->GetTextures()[glyph->page_],
-            SBE_NONE, // effects нужно использовать
-            textVS_,
-            font->IsSDFFont() ? sdfTextPS_ : ttfTextPS_
-        };
+            const FontGlyph* glyph = face->GetGlyph(unicodeText[i]);
 
-        sprites_.Push(sprite);
-        charPos.x_ += glyph->advanceX_;
+            SBSprite sprite
+            {
+                Rect(glyph->x_, glyph->y_, glyph->x_ + glyph->width_, glyph->y_ + glyph->height_),
+                (effects & SBE_FLIP_VERTICALLY) ?
+                    Rect(charPos.x_ + glyph->offsetX_, charPos.y_,
+                        charPos.x_ + glyph->width_ + glyph->offsetX_, charPos.y_ + glyph->height_) :
+                    Rect(charPos.x_ + glyph->offsetX_, charPos.y_ + glyph->offsetY_,
+                        charPos.x_ + glyph->width_ + glyph->offsetX_, charPos.y_ + glyph->height_ + glyph->offsetY_),
+                color,
+                Vector2(0.0f, 0.0f), // origin нужно использовать
+                0.0f, // rotation нужно использовать
+                face->GetTextures()[glyph->page_],
+                effects,
+                textVS_,
+                font->IsSDFFont() ? sdfTextPS_ : ttfTextPS_
+            };
+
+            sprites_.Push(sprite);
+            charPos.x_ += glyph->advanceX_;
+        }
+    }
+    else
+    {
+        for (unsigned i = 0; i < unicodeText.Size(); i++)
+        {
+            const FontGlyph* glyph = face->GetGlyph(unicodeText[i]);
+
+            SBSprite sprite
+            {
+                Rect(glyph->x_, glyph->y_, glyph->x_ + glyph->width_, glyph->y_ + glyph->height_),
+                (effects & SBE_FLIP_VERTICALLY) ?
+                    Rect(charPos.x_ + glyph->offsetX_, charPos.y_,
+                        charPos.x_ + glyph->width_ + glyph->offsetX_, charPos.y_ + glyph->height_) :
+                    Rect(charPos.x_ + glyph->offsetX_, charPos.y_ + glyph->offsetY_,
+                        charPos.x_ + glyph->width_ + glyph->offsetX_, charPos.y_ + glyph->height_ + glyph->offsetY_),
+                color,
+                Vector2(0.0f, 0.0f), // origin нужно использовать
+                0.0f, // rotation нужно использовать
+                face->GetTextures()[glyph->page_],
+                effects,
+                textVS_,
+                font->IsSDFFont() ? sdfTextPS_ : ttfTextPS_
+            };
+
+            sprites_.Push(sprite);
+            charPos.x_ += glyph->advanceX_;
+        }
     }
 }
 
@@ -240,6 +273,7 @@ void SpriteBatch::RenderPortion(unsigned start, unsigned count)
         Rect dest = sprite->destination_;
         Rect src = sprite->source_;
         Vector2 origin = sprite->origin_;
+        SBEffects effects = sprite->effects_;
 
         if (sprite->rotation_ == 0.0f)
         {
@@ -299,6 +333,20 @@ void SpriteBatch::RenderPortion(unsigned start, unsigned count)
         vertices[i * VERTICES_PER_SPRITE + 1].color_ = color;
         vertices[i * VERTICES_PER_SPRITE + 2].color_ = color;
         vertices[i * VERTICES_PER_SPRITE + 3].color_ = color;
+
+        if (effects & SBE_FLIP_HORIZONTALLY)
+        {
+            float tmp = src.min_.x_;
+            src.min_.x_ = src.max_.x_;
+            src.max_.x_ = tmp;
+        }
+
+        if (effects & SBE_FLIP_VERTICALLY)
+        {
+            float tmp = src.min_.y_;
+            src.min_.y_ = src.max_.y_;
+            src.max_.y_ = tmp;
+        }
 
         vertices[i * VERTICES_PER_SPRITE + 0].uv_ = Vector2(src.min_.x_ * invw, src.min_.y_ * invh);
         vertices[i * VERTICES_PER_SPRITE + 1].uv_ = Vector2(src.max_.x_ * invw, src.min_.y_ * invh);

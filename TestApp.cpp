@@ -161,15 +161,21 @@ public:
 
     void HandleEndViewRender(StringHash eventType, VariantMap& eventData)
     {
-        Texture2D* texture = GetSubsystem<ResourceCache>()->GetResource<Texture2D>("Urho2D/Ball.png");
+        Texture2D* ball = GetSubsystem<ResourceCache>()->GetResource<Texture2D>("Urho2D/Ball.png");
+        Texture2D* head = GetSubsystem<ResourceCache>()->GetResource<Texture2D>("Urho2D/imp/imp_head.png");
 
         spriteBatch_->Begin();
 
         for (int i = 0; i < 20000; i++)
-            spriteBatch_->Draw(texture, Vector2(Random(0.0f, 800.0f), Random(0.0f, 600.0f)), nullptr, Color::WHITE, Vector2(0, 0));
+            spriteBatch_->Draw(ball, Vector2(Random(0.0f, 800.0f), Random(0.0f, 600.0f)), nullptr, Color::WHITE, Vector2(0, 0));
+
+        spriteBatch_->Draw(head, Vector2(200.0f, 200.0f), nullptr, Color::WHITE, Vector2::ZERO, 0.0f, SBE_FLIP_BOTH);
 
         spriteBatch_->DrawString(String("FPS: ") + String(fpsValue_), Vector2(50.0f, 50.0f),
             CACHE->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40, Color::RED);
+
+        spriteBatch_->DrawString(String("Mirrored Text"), Vector2(250.0f, 200.0f),
+            CACHE->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40, Color::RED, 0.0f, Vector2::ZERO, SBE_FLIP_BOTH);
 
         spriteBatch_->End();
     }
