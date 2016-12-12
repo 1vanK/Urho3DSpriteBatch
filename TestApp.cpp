@@ -190,7 +190,7 @@ public:
             Vector2(250.0f, 200.0f), Color::RED, 0.0f, Vector2::ZERO, 1.0f, SBE_FLIP_BOTH);
 
         spriteBatch_->DrawString("Some Text", CACHE->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40,
-            Vector2(400.0f, 300.0f), Color::GREEN, angle_);
+            Vector2(400.0f, 300.0f), Color::BLUE, angle_, Vector2::ZERO, scale);
 
         spriteBatch_->End();
     }

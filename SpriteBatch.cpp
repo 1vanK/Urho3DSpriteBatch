@@ -126,6 +126,7 @@ void SpriteBatch::DrawString(const String& text, Font* font, int fontSize, const
 
     FontFace* face = font->GetFace(fontSize);
     Vector2 pos = position;
+    Vector2 charOrig = origin;
 
     unsigned i = 0;
     int step = 1;
@@ -135,6 +136,9 @@ void SpriteBatch::DrawString(const String& text, Font* font, int fontSize, const
         i = unicodeText.Size() - 1;
         step = -1;
     }
+
+    float sin, cos;
+    SinCos(rotation, sin, cos);
 
     for (; i < unicodeText.Size(); i += step)
     {
@@ -149,13 +153,11 @@ void SpriteBatch::DrawString(const String& text, Font* font, int fontSize, const
         SBSprite sprite
         {
             face->GetTextures()[glyph->page_],
-            (effects & SBE_FLIP_VERTICALLY) ?
-                Rect(pos.x_ + gox, pos.y_, pos.x_ + gw + gox, pos.y_ + gh) :
-                Rect(pos.x_ + gox, pos.y_ + goy, pos.x_ + gw + gox, pos.y_ + gh + goy),
+            Rect(position.x_, position.y_, position.x_ + gw, position.y_ + gh),
             Rect(gx, gy, gx + gw, gy + gh),
             color,
             rotation,
-            origin,
+            (effects & SBE_FLIP_VERTICALLY) ? charOrig - Vector2(gox, 0.0f) : charOrig - Vector2(gox, goy),
             scale,
             effects,
             textVS_,
@@ -163,11 +165,7 @@ void SpriteBatch::DrawString(const String& text, Font* font, int fontSize, const
         };
 
         sprites_.Push(sprite);
-        
-        float sin, cos;
-        SinCos(rotation, sin, cos);
-        pos.x_ += (float)glyph->advanceX_ * cos;
-        pos.y_ += (float)glyph->advanceX_ * sin;
+        charOrig.x_ -= (float)glyph->advanceX_;
     }
 }
 
