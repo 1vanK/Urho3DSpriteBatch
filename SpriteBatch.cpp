@@ -281,24 +281,16 @@ void SpriteBatch::RenderPortion(unsigned start, unsigned count)
             // она находилась в начале координат (origin по умолчанию), а потом еще на указанный origin.
             Rect local(-origin, dest.max_ - dest.min_ - origin);
 
-            // Матрица поворачивает вершину в локальных координатах, а затем
+            // Матрица масштабирует и поворачивает вершину в локальных координатах, а затем
             // смещает ее назад в мировые координаты.
             float sin, cos;
-            SinCos(-sprite->rotation_, sin, cos); // Минус, чтобы было вращение по часовой стрелке.
+            SinCos(sprite->rotation_, sin, cos);
             Matrix3 transform
             {
-                 cos, sin,    dest.min_.x_,
-                -sin, cos,    dest.min_.y_,
-                 0.0f, 0.0f,  1.0f
+                cos * scale, -sin * scale,  dest.min_.x_,
+                sin * scale,  cos * scale,  dest.min_.y_,
+                0.0f,         0.0f,         1.0f
             };
-            Matrix3 scaleMatrix
-            {
-                scale, 0.0f,     0.0f,
-                0.0f,     scale, 0.0f,
-                0.0f,     0.0f,     1.0f
-            };
-
-            transform = transform * scaleMatrix;
 
             // В движке вектор умножается на матрицу справа (в отличие от шейдеров).
             // TransformedVector = TranslationMatrix * RotationMatrix * ScalingMatrix * OriginalVector.
