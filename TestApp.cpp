@@ -186,11 +186,11 @@ public:
         spriteBatch_->DrawString(String("FPS: ") + String(fpsValue_),
             CACHE->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40, Vector2(50.0f, 50.0f), Color::RED);
 
-        spriteBatch_->DrawString(String("Mirrored Text"), CACHE->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40,
+        spriteBatch_->DrawString("Mirrored Text", CACHE->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40,
             Vector2(250.0f, 200.0f), Color::RED, 0.0f, Vector2::ZERO, 1.0f, SBE_FLIP_BOTH);
 
-        //spriteBatch_->DrawString(String("Some Text"), Vector2(250.0f, 200.0f),
-        //    CACHE->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40, Color::GREEN, angle_, Vector2::ZERO, scale, SBE_FLIP_BOTH);
+        spriteBatch_->DrawString("Some Text", CACHE->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40,
+            Vector2(400.0f, 300.0f), Color::GREEN, angle_);
 
         spriteBatch_->End();
     }

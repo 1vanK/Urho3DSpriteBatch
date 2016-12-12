@@ -32,13 +32,11 @@ using namespace Urho3D;
 namespace Urho3D
 {
 
-//class Graphics;
 class IndexBuffer;
 class Font;
 class Texture2D;
 class Camera;
 class VertexBuffer;
-class FontFace;
 
 // Режимы зеркального отображения спрайтов.
 enum SBEffects
@@ -118,7 +116,7 @@ private:
     BlendMode blendMode_;
 
     // Если использовать CMP_LESSEQUAL, то модели, которые ближе к камере,
-    // не будут перекрыты спрайтами.
+    // не будут перекрыты спрайтами (учитывается буфер глубины).
     CompareMode compareMode_;
 
     float z_;

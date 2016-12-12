@@ -90,7 +90,7 @@ void SpriteBatch::Draw(Texture2D* texture, const Rect& destination, Rect* source
     {
         texture,
         destination,
-        source ? *source : Rect(0, 0, texture->GetWidth(), texture->GetHeight()),
+        source ? *source : Rect(0.0f, 0.0f, (float)texture->GetWidth(), (float)texture->GetHeight()),
         color,
         rotation,
         origin,
@@ -163,7 +163,11 @@ void SpriteBatch::DrawString(const String& text, Font* font, int fontSize, const
         };
 
         sprites_.Push(sprite);
-        pos.x_ += (float)glyph->advanceX_;
+        
+        float sin, cos;
+        SinCos(rotation, sin, cos);
+        pos.x_ += (float)glyph->advanceX_ * cos;
+        pos.y_ += (float)glyph->advanceX_ * sin;
     }
 }
 
@@ -199,7 +203,7 @@ Matrix4 SpriteBatch::GetViewProjMatrix()
     int h = graphics_->GetHeight();
 
     return Matrix4(2.0f / w,    0.0f,         0.0f,   -1.0f,
-                   0.0f,        -2.0f / h,    0.0f,    1.0f,
+                   0.0f,       -2.0f / h,     0.0f,    1.0f,
                    0.0f,        0.0f,         1.0f,    0.0f,
                    0.0f,        0.0f,         0.0f,    1.0f);
 }
