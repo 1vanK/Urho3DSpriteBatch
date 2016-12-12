@@ -3,9 +3,6 @@
 
 Существующие проблемы:
 - Текст не вращается.
-- Нет масштабирования.
-- Нет реализована зеркальность.
-- Может быть изменен порядок аргументов в функциях.
 - Нет режимов сортировки спрайтов перед рендерингов (возможно и не будет). Спрайты выводятся
   в том порядке, в котором были добавлены на отрисовку.
 
@@ -41,6 +38,7 @@ class Font;
 class Texture2D;
 class Camera;
 class VertexBuffer;
+class FontFace;
 
 // Режимы зеркального отображения спрайтов.
 enum SBEffects
@@ -72,27 +70,27 @@ public:
 
     void End();
 
-    void Draw(Texture2D* texture, Rect& destination, Rect* source = nullptr,
-        Color color = Color::WHITE, float rotation = 0.0f, Vector2 origin = Vector2::ZERO, float scale = 1.0f, SBEffects effects = SBE_NONE);
+    void Draw(Texture2D* texture, const Rect& destination, Rect* source = nullptr, const Color& color = Color::WHITE,
+        float rotation = 0.0f, const Vector2& origin = Vector2::ZERO, float scale = 1.0f, SBEffects effects = SBE_NONE);
 
-    void Draw(Texture2D* texture, Vector2& position, Rect* source = nullptr,
-        Color color = Color::WHITE, float rotation = 0.0f, Vector2 origin = Vector2::ZERO, float scale = 1.0f, SBEffects effects = SBE_NONE);
+    void Draw(Texture2D* texture, const Vector2& position, Rect* source = nullptr, const Color& color = Color::WHITE,
+        float rotation = 0.0f, const Vector2 &origin = Vector2::ZERO, float scale = 1.0f, SBEffects effects = SBE_NONE);
 
-    void DrawString(String text, Vector2& position, Font* font, int fontSize = 20, Color color = Color::WHITE,
-        float rotation = 0.0f, Vector2 origin = Vector2::ZERO, float scale = 1.0f, SBEffects effects = SBE_NONE);
+    void DrawString(const String& text, Font* font, int fontSize, const Vector2& position, const Color& color = Color::WHITE,
+        float rotation = 0.0f, const Vector2& origin = Vector2::ZERO, float scale = 1.0f, SBEffects effects = SBE_NONE);
 
 private:
 
     // Отдельный спрайт в очереди на отрисовку.
     struct SBSprite
     {
-        Rect source_;
+        Texture2D* texture_;
         Rect destination_;
+        Rect source_;
         Color color_;
         float rotation_;
         Vector2 origin_;
         float scale_;
-        Texture2D* texture_;
         SBEffects effects_;
 
         // Для отрисовки текста и обычных спрайтов нужны разные шейдеры.

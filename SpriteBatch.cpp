@@ -83,18 +83,18 @@ void SpriteBatch::Begin(BlendMode blendMode, CompareMode compareMode, float z, C
     sprites_.Clear();
 }
 
-void SpriteBatch::Draw(Texture2D* texture, Rect& destination, Rect* source,
-    Color color, float rotation, Vector2 origin, float scale, SBEffects effects)
+void SpriteBatch::Draw(Texture2D* texture, const Rect& destination, Rect* source,
+    const Color& color, float rotation, const Vector2& origin, float scale, SBEffects effects)
 {
     SBSprite sprite
     {
-        source ? *source : Rect(0, 0, texture->GetWidth(), texture->GetHeight()),
+        texture,
         destination,
+        source ? *source : Rect(0, 0, texture->GetWidth(), texture->GetHeight()),
         color,
         rotation,
         origin,
         scale,
-        texture,
         effects,
         spriteVS_,
         spritePS_
@@ -103,8 +103,8 @@ void SpriteBatch::Draw(Texture2D* texture, Rect& destination, Rect* source,
     sprites_.Push(sprite);
 }
 
-void SpriteBatch::Draw(Texture2D* texture, Vector2& position, Rect* source,
-    Color color, float rotation, Vector2 origin, float scale, SBEffects effects)
+void SpriteBatch::Draw(Texture2D* texture, const Vector2& position, Rect* source,
+    const Color& color, float rotation, const Vector2& origin, float scale, SBEffects effects)
 {
     Rect destination
     {
@@ -117,71 +117,53 @@ void SpriteBatch::Draw(Texture2D* texture, Vector2& position, Rect* source,
     Draw(texture, destination, source, color, rotation, origin, scale, effects);
 }
 
-void SpriteBatch::DrawString(String text, Vector2& position, Font* font, int fontSize, Color color,
-    float rotation, Vector2 origin, float scale, SBEffects effects)
+void SpriteBatch::DrawString(const String& text, Font* font, int fontSize, const Vector2& position,
+    const Color& color, float rotation, const Vector2& origin, float scale, SBEffects effects)
 {
     PODVector<unsigned> unicodeText;
     for (unsigned i = 0; i < text.Length();)
         unicodeText.Push(text.NextUTF8Char(i));
 
     FontFace* face = font->GetFace(fontSize);
-    Vector2 charPos = position;
+    Vector2 pos = position;
+
+    unsigned i = 0;
+    int step = 1;
 
     if (effects & SBE_FLIP_HORIZONTALLY)
     {
-        for (unsigned i = unicodeText.Size() - 1; i < unicodeText.Size(); i--)
-        {
-            const FontGlyph* glyph = face->GetGlyph(unicodeText[i]);
-
-            SBSprite sprite
-            {
-                Rect(glyph->x_, glyph->y_, glyph->x_ + glyph->width_, glyph->y_ + glyph->height_),
-                (effects & SBE_FLIP_VERTICALLY) ?
-                    Rect(charPos.x_ + glyph->offsetX_, charPos.y_,
-                        charPos.x_ + glyph->width_ + glyph->offsetX_, charPos.y_ + glyph->height_) :
-                    Rect(charPos.x_ + glyph->offsetX_, charPos.y_ + glyph->offsetY_,
-                        charPos.x_ + glyph->width_ + glyph->offsetX_, charPos.y_ + glyph->height_ + glyph->offsetY_),
-                color,
-                rotation,
-                origin,
-                scale,
-                face->GetTextures()[glyph->page_],
-                effects,
-                textVS_,
-                font->IsSDFFont() ? sdfTextPS_ : ttfTextPS_
-            };
-
-            sprites_.Push(sprite);
-            charPos.x_ += glyph->advanceX_;
-        }
+        i = unicodeText.Size() - 1;
+        step = -1;
     }
-    else
+
+    for (; i < unicodeText.Size(); i += step)
     {
-        for (unsigned i = 0; i < unicodeText.Size(); i++)
+        const FontGlyph* glyph = face->GetGlyph(unicodeText[i]);
+        float gx = (float)glyph->x_;
+        float gy = (float)glyph->y_;
+        float gw = (float)glyph->width_;
+        float gh = (float)glyph->height_;
+        float gox = (float)glyph->offsetX_;
+        float goy = (float)glyph->offsetY_;
+
+        SBSprite sprite
         {
-            const FontGlyph* glyph = face->GetGlyph(unicodeText[i]);
+            face->GetTextures()[glyph->page_],
+            (effects & SBE_FLIP_VERTICALLY) ?
+                Rect(pos.x_ + gox, pos.y_, pos.x_ + gw + gox, pos.y_ + gh) :
+                Rect(pos.x_ + gox, pos.y_ + goy, pos.x_ + gw + gox, pos.y_ + gh + goy),
+            Rect(gx, gy, gx + gw, gy + gh),
+            color,
+            rotation,
+            origin,
+            scale,
+            effects,
+            textVS_,
+            font->IsSDFFont() ? sdfTextPS_ : ttfTextPS_
+        };
 
-            SBSprite sprite
-            {
-                Rect(glyph->x_, glyph->y_, glyph->x_ + glyph->width_, glyph->y_ + glyph->height_),
-                (effects & SBE_FLIP_VERTICALLY) ?
-                    Rect(charPos.x_ + glyph->offsetX_, charPos.y_,
-                        charPos.x_ + glyph->width_ + glyph->offsetX_, charPos.y_ + glyph->height_) :
-                    Rect(charPos.x_ + glyph->offsetX_, charPos.y_ + glyph->offsetY_,
-                        charPos.x_ + glyph->width_ + glyph->offsetX_, charPos.y_ + glyph->height_ + glyph->offsetY_),
-                color,
-                rotation,
-                origin,
-                scale,
-                face->GetTextures()[glyph->page_],
-                effects,
-                textVS_,
-                font->IsSDFFont() ? sdfTextPS_ : ttfTextPS_
-            };
-
-            sprites_.Push(sprite);
-            charPos.x_ += glyph->advanceX_;
-        }
+        sprites_.Push(sprite);
+        pos.x_ += (float)glyph->advanceX_;
     }
 }
 

@@ -180,14 +180,14 @@ public:
         spriteBatch_->Draw(head, Vector2(200.0f, 200.0f), nullptr, Color::WHITE, 0.0f, Vector2::ZERO, 1.0f, SBE_FLIP_BOTH);
 
         float scale = cos(scale_) * 2.0f;
-        Vector2 origin = Vector2(head->GetWidth() / 2, head->GetHeight() / 2);
+        Vector2 origin = Vector2(head->GetWidth() * 0.5f, head->GetHeight() * 0.5f);
         spriteBatch_->Draw(head, Vector2(400.0f, 300.0f), nullptr, Color::WHITE, angle_, origin, scale);
 
-        spriteBatch_->DrawString(String("FPS: ") + String(fpsValue_), Vector2(50.0f, 50.0f),
-            CACHE->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40, Color::RED);
+        spriteBatch_->DrawString(String("FPS: ") + String(fpsValue_),
+            CACHE->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40, Vector2(50.0f, 50.0f), Color::RED);
 
-        spriteBatch_->DrawString(String("Mirrored Text"), Vector2(250.0f, 200.0f),
-            CACHE->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40, Color::RED, 0.0f, Vector2::ZERO, 1.0f, SBE_FLIP_BOTH);
+        spriteBatch_->DrawString(String("Mirrored Text"), CACHE->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40,
+            Vector2(250.0f, 200.0f), Color::RED, 0.0f, Vector2::ZERO, 1.0f, SBE_FLIP_BOTH);
 
         //spriteBatch_->DrawString(String("Some Text"), Vector2(250.0f, 200.0f),
         //    CACHE->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40, Color::GREEN, angle_, Vector2::ZERO, scale, SBE_FLIP_BOTH);
