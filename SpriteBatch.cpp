@@ -51,6 +51,7 @@ SpriteBatch::SpriteBatch(Context *context) :
         buffer[i * INDICES_PER_SPRITE + 0] = i * VERTICES_PER_SPRITE + 0;
         buffer[i * INDICES_PER_SPRITE + 1] = i * VERTICES_PER_SPRITE + 1;
         buffer[i * INDICES_PER_SPRITE + 2] = i * VERTICES_PER_SPRITE + 2;
+        
         // Второй треугольник спрайта.
         buffer[i * INDICES_PER_SPRITE + 3] = i * VERTICES_PER_SPRITE + 2;
         buffer[i * INDICES_PER_SPRITE + 4] = i * VERTICES_PER_SPRITE + 3;
@@ -64,8 +65,11 @@ SpriteBatch::SpriteBatch(Context *context) :
     graphics_ = GetSubsystem<Graphics>();
     spriteVS_ = graphics_->GetShader(VS, "Basic", "DIFFMAP VERTEXCOLOR");
     spritePS_ = graphics_->GetShader(PS, "Basic", "DIFFMAP VERTEXCOLOR");
-    textVS_ = graphics_->GetShader(VS, "Text");
-    ttfTextPS_ = graphics_->GetShader(PS, "Text");
+    ttfTextVS_ = graphics_->GetShader(VS, "Text");
+    ttfTextPS_ = graphics_->GetShader(PS, "Text", "ALPHAMAP");
+    spriteTextVS_ = graphics_->GetShader(VS, "Text");
+    spriteTextPS_ = graphics_->GetShader(PS, "Text");
+    sdfTextVS_ = graphics_->GetShader(VS, "Text");
     sdfTextPS_ = graphics_->GetShader(PS, "Text", "SIGNED_DISTANCE_FIELD");
 }
 
@@ -150,6 +154,28 @@ void SpriteBatch::DrawString(const String& text, Font* font, int fontSize, const
         float gox = (float)glyph->offsetX_;
         float goy = (float)glyph->offsetY_;
 
+        ShaderVariation* ps;
+        ShaderVariation* vs;
+
+        if (font->GetFontType() == FONT_FREETYPE)
+        {
+            ps = ttfTextPS_;
+            vs = ttfTextVS_;
+        }
+        else // FONT_BITMAP
+        {
+            if (font->IsSDFFont())
+            {
+                ps = sdfTextPS_;
+                vs = sdfTextVS_;
+            }
+            else
+            {
+                ps = spriteTextPS_;
+                vs = spriteTextVS_;
+            }
+        }
+
         SBSprite sprite
         {
             face->GetTextures()[glyph->page_],
@@ -160,8 +186,8 @@ void SpriteBatch::DrawString(const String& text, Font* font, int fontSize, const
             (effects & SBE_FLIP_VERTICALLY) ? charOrig - Vector2(gox, 0.0f) : charOrig - Vector2(gox, goy),
             scale,
             effects,
-            textVS_,
-            font->IsSDFFont() ? sdfTextPS_ : ttfTextPS_
+            vs,
+            ps
         };
 
         sprites_.Push(sprite);
@@ -171,15 +197,15 @@ void SpriteBatch::DrawString(const String& text, Font* font, int fontSize, const
 
 void SpriteBatch::End()
 {
-    graphics_->ClearParameterSources(); // Нужно ли это?
+    graphics_->ResetRenderTargets();
+    graphics_->ClearParameterSources();
     graphics_->SetCullMode(CULL_NONE);
     graphics_->SetDepthTest(compareMode_);
     graphics_->SetBlendMode(blendMode_);
     graphics_->SetDepthWrite(false);
     graphics_->SetStencilTest(false);
     graphics_->SetScissorTest(false);
-    graphics_->SetColorWrite(true); // Нужно ли это?
-    graphics_->ResetRenderTargets(); // Нужно ли это?
+    graphics_->SetColorWrite(true);
     graphics_->SetIndexBuffer(indexBuffer_);
     graphics_->SetVertexBuffer(vertexBuffer_);
 
@@ -217,7 +243,7 @@ unsigned SpriteBatch::GetPortionLength(unsigned start)
 
         unsigned nextSpriteIndex = start + count;
         
-        // Достигнут конец вектора.
+        // Достигнут конец списка.
         if (nextSpriteIndex == sprites_.Size())
             break;
         

@@ -172,6 +172,9 @@ public:
         Texture2D* ball = GetSubsystem<ResourceCache>()->GetResource<Texture2D>("Urho2D/Ball.png");
         Texture2D* head = GetSubsystem<ResourceCache>()->GetResource<Texture2D>("Urho2D/imp/imp_head.png");
 
+        // Можно так очищать, а можно цвет зоны задать.
+        //GetSubsystem<Graphics>()->Clear(CLEAR_COLOR, Color::GREEN);
+
         spriteBatch_->Begin();
 
         for (int i = 0; i < 20000; i++)

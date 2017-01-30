@@ -1,20 +1,19 @@
 ﻿/*
-Аналог SpriteBatch (XNA, DirectXTK) и D3DXSprite.
+    Аналог SpriteBatch (XNA, DirectXTK) и D3DXSprite.
 
-Использование:
-В функции Start():
-spriteBatch_ = new SpriteBatch(context_);
+    Использование:
+    В функции Start():
+    spriteBatch_ = new SpriteBatch(context_);
 
-В обработчике HandleEndViewRender:
-spriteBatch_->Begin();
-spriteBatch_->Draw(texture, Vector2(100, 100), nullptr, Color::WHITE, Vector2(20, 20), 180.0f);
-spriteBatch_->End();
-В этом случае SpriteBatch будет под интерфейсом.
+    В обработчике HandleEndViewRender:
+    spriteBatch_->Begin();
+    spriteBatch_->Draw(texture, Vector2(100, 100), nullptr, Color::WHITE, Vector2(20, 20), 180.0f);
+    spriteBatch_->End();
+    В этом случае SpriteBatch будет под интерфейсом.
 
-Если использовать E_ENDRENDERING, то SpriteBatch будет рисоваться поверх UI.
-Пригодится, например, для вывода куросра.
+    Если использовать E_ENDRENDERING, то SpriteBatch будет рисоваться поверх UI.
+    Пригодится, например, для вывода курсора.
 */
-
 
 #pragma once
 
@@ -103,8 +102,11 @@ private:
     Graphics* graphics_;
     ShaderVariation* spriteVS_;
     ShaderVariation* spritePS_;
-    ShaderVariation* textVS_;
+    ShaderVariation* ttfTextVS_;
     ShaderVariation* ttfTextPS_;
+    ShaderVariation* spriteTextVS_;
+    ShaderVariation* spriteTextPS_;
+    ShaderVariation* sdfTextVS_;
     ShaderVariation* sdfTextPS_;
 
     // Режим наложения.

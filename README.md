@@ -5,6 +5,8 @@ Perfomance: DirecX 11 > OpenGL > DirectX 9.
 
 License: Public Domain
 
+See also: https://github.com/1vanK/Urho3DBitmapFontGenerator
+
 ```
 void Start()
 {
