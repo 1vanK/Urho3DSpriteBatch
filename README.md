@@ -34,3 +34,13 @@ void HandleEndViewRender(StringHash eventType, VariantMap& eventData)
 }
 ```
 ![Screenshot2](https://github.com/1vanK/Urho3DSpriteBatch/raw/master/Screen02.png)
+```
+void Start()
+{
+    ...
+    spriteBatch_ = new SpriteBatch(context_);
+    spriteBatch_->virtualScreenSize_ = IntVector2(800, 600);
+}
+```
+![Screenshot3](https://github.com/1vanK/Urho3DSpriteBatch/raw/master/Screen03.png)
+

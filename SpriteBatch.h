@@ -53,6 +53,9 @@ class URHO3D_API SpriteBatch : public Object
     URHO3D_OBJECT(SpriteBatch, Object);
 
 public:
+    // Размеры виртуального экрана. Если одна из координат <= 0, то используются
+    // реальные размеры экрана.
+    IntVector2 virtualScreenSize_ = IntVector2(0, 0);
 
     SpriteBatch(Context *context);
     virtual ~SpriteBatch();
@@ -71,8 +74,10 @@ public:
     void DrawString(const String& text, Font* font, int fontSize, const Vector2& position, const Color& color = Color::WHITE,
         float rotation = 0.0f, const Vector2& origin = Vector2::ZERO, float scale = 1.0f, SBEffects effects = SBE_NONE);
 
-private:
+    // Переводит реальные координаты в виртуальные. Используется для курсора мыши.
+    Vector2 GetVirtualPos(const Vector2& realPos);
 
+private:
     // Отдельный спрайт в очереди на отрисовку.
     struct SBSprite
     {
@@ -120,6 +125,9 @@ private:
 
     // Если определена камера, то SpriteBatch рендерится в мировых координатах.
     Camera* camera_;
+
+    // Это значение вычисляется в функции Begin().
+    IntRect viewportRect_;
 
     // Рендерит порцию спрайтов, использующих одну и ту же текстуру и шейдер.
     void RenderPortion(unsigned start, unsigned count);

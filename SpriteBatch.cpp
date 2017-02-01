@@ -85,6 +85,39 @@ void SpriteBatch::Begin(BlendMode blendMode, CompareMode compareMode, float z, C
     camera_ = camera;
 
     sprites_.Clear();
+
+    // Вычисляем viewportRect_.
+    if (virtualScreenSize_.x_ <= 0 || virtualScreenSize_.y_ <= 0)
+    {
+        // Виртуальный экран не используется. Вьюпорт занимает все окно.
+        viewportRect_ = IntRect(0, 0, graphics_->GetWidth(), graphics_->GetHeight());
+    }
+    else
+    {
+        float realAspect = (float)graphics_->GetWidth() / graphics_->GetHeight();
+        float virtualAspect = (float)virtualScreenSize_.x_ / virtualScreenSize_.y_;
+
+        float virtualScreenScale;
+        if (realAspect > virtualAspect)
+        {
+            // Окно шире, чем надо. Будут черные полосы по бокам.
+            virtualScreenScale = (float)graphics_->GetHeight() / virtualScreenSize_.y_;
+        }
+        else
+        {
+            // Высота окна больше, чем надо. Будут черные полосы сверху и снизу.
+            virtualScreenScale = (float)graphics_->GetWidth() / virtualScreenSize_.x_;
+        }
+
+        int viewportWidth = (int)(virtualScreenSize_.x_ * virtualScreenScale);
+        int viewportHeight = (int)(virtualScreenSize_.y_ * virtualScreenScale);
+
+        // Центрируем вьюпорт.
+        int viewportX = (graphics_->GetWidth() - viewportWidth) / 2;
+        int viewportY = (graphics_->GetHeight() - viewportHeight) / 2;
+
+        viewportRect_ = IntRect(viewportX, viewportY, viewportWidth + viewportX, viewportHeight + viewportY);
+    }
 }
 
 void SpriteBatch::Draw(Texture2D* texture, const Rect& destination, Rect* source,
@@ -208,6 +241,7 @@ void SpriteBatch::End()
     graphics_->SetColorWrite(true);
     graphics_->SetIndexBuffer(indexBuffer_);
     graphics_->SetVertexBuffer(vertexBuffer_);
+    graphics_->SetViewport(viewportRect_);
 
     unsigned startSpriteIndex = 0;
     while (startSpriteIndex != sprites_.Size())
@@ -218,13 +252,30 @@ void SpriteBatch::End()
     }
 }
 
+Vector2 SpriteBatch::GetVirtualPos(const Vector2& realPos)
+{
+    float factor = (float)virtualScreenSize_.x_ / viewportRect_.Width();
+
+    float virtualX = (realPos.x_ - viewportRect_.left_) * factor;
+    float virtualY = (realPos.y_ - viewportRect_.top_) * factor;
+
+    return Vector2(virtualX, virtualY);
+}
+
 Matrix4 SpriteBatch::GetViewProjMatrix()
 {
     if (camera_)
         return camera_->GetGPUProjection() * camera_->GetView();
 
-    int w = graphics_->GetWidth();
-    int h = graphics_->GetHeight();
+    int w = virtualScreenSize_.x_;
+    int h = virtualScreenSize_.y_;
+
+    // Размеры виртуального экрана не заданы.
+    if (w <= 0 || h <= 0)
+    {
+        w = graphics_->GetWidth();
+        h = graphics_->GetHeight();
+    }
 
     return Matrix4(2.0f / w,    0.0f,         0.0f,   -1.0f,
                    0.0f,       -2.0f / h,     0.0f,    1.0f,
