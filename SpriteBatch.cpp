@@ -254,6 +254,9 @@ void SpriteBatch::End()
 
 Vector2 SpriteBatch::GetVirtualPos(const Vector2& realPos)
 {
+    if (virtualScreenSize_.x_ <= 0 || virtualScreenSize_.x_ <= 0)
+        return realPos;
+
     float factor = (float)virtualScreenSize_.x_ / viewportRect_.Width();
 
     float virtualX = (realPos.x_ - viewportRect_.left_) * factor;
