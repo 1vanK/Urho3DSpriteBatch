@@ -1,7 +1,7 @@
 # Urho3D SpriteBatch
 
 In my tests Urho3D DX9 version has identical perfomance with XNA (DirectX 9) and Urho3D DX11 with MonoGame (DirectX 11).<br>
-Perfomance: DirecX 11 > OpenGL > DirectX 9.
+Perfomance: DirectX 11 > OpenGL > DirectX 9.
 
 License: Public Domain
 
