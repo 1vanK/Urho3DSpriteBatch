@@ -13,6 +13,8 @@
 
     Если использовать E_ENDRENDERING, то SpriteBatch будет рисоваться поверх UI.
     Пригодится, например, для вывода курсора.
+
+    Чтобы лучше понимать код, изучите https://github.com/1vanK/Urho3DTutor01 .
 */
 
 #pragma once
@@ -71,7 +73,7 @@ public:
     void Draw(Texture2D* texture, const Vector2& position, Rect* source = nullptr, const Color& color = Color::WHITE,
         float rotation = 0.0f, const Vector2 &origin = Vector2::ZERO, float scale = 1.0f, SBEffects effects = SBE_NONE);
 
-    void DrawString(const String& text, Font* font, int fontSize, const Vector2& position, const Color& color = Color::WHITE,
+    void DrawString(const String& text, Font* font, float fontSize, const Vector2& position, const Color& color = Color::WHITE,
         float rotation = 0.0f, const Vector2& origin = Vector2::ZERO, float scale = 1.0f, SBEffects effects = SBE_NONE);
 
     // Переводит реальные координаты в виртуальные. Используется для курсора мыши.

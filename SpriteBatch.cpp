@@ -154,7 +154,7 @@ void SpriteBatch::Draw(Texture2D* texture, const Vector2& position, Rect* source
     Draw(texture, destination, source, color, rotation, origin, scale, effects);
 }
 
-void SpriteBatch::DrawString(const String& text, Font* font, int fontSize, const Vector2& position,
+void SpriteBatch::DrawString(const String& text, Font* font, float fontSize, const Vector2& position,
     const Color& color, float rotation, const Vector2& origin, float scale, SBEffects effects)
 {
     PODVector<unsigned> unicodeText;
@@ -230,6 +230,10 @@ void SpriteBatch::DrawString(const String& text, Font* font, int fontSize, const
 
 void SpriteBatch::End()
 {
+    // Список спрайтов пуст.
+    if (sprites_.Size() == 0)
+        return;
+
     graphics_->ResetRenderTargets();
     graphics_->ClearParameterSources();
     graphics_->SetCullMode(CULL_NONE);
@@ -280,8 +284,16 @@ Matrix4 SpriteBatch::GetViewProjMatrix()
         h = graphics_->GetHeight();
     }
 
-    return Matrix4(2.0f / w,    0.0f,         0.0f,   -1.0f,
-                   0.0f,       -2.0f / h,     0.0f,    1.0f,
+    // В DirectX 9 вершины нужно смещать на пол пикселя
+    // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
+    float pixelWidth  = 2.0f / w; // Двойка так как длина отрезка [-1, 1] равна двум.
+    float pixelHeight = 2.0f / h; // Подробности: https://github.com/1vanK/Urho3DTutor01 .
+    Vector2 offset = graphics_->GetPixelUVOffset();
+    offset.x_ *= pixelWidth;
+    offset.y_ *= pixelHeight;
+
+    return Matrix4(2.0f / w,    0.0f,         0.0f,   -1.0f - offset.x_,
+                   0.0f,       -2.0f / h,     0.0f,    1.0f + offset.y_,
                    0.0f,        0.0f,         1.0f,    0.0f,
                    0.0f,        0.0f,         0.0f,    1.0f);
 }
