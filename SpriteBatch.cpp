@@ -377,7 +377,7 @@ void SpriteBatch::RenderPortion(unsigned start, unsigned count)
             Rect local(-origin, dest.max_ - dest.min_ - origin);
 
             // Матрица масштабирует и поворачивает вершину в локальных координатах, а затем
-            // смещает ее требуемые в мировые координаты.
+            // смещает ее в требуемые мировые координаты.
             float sin, cos;
             SinCos(sprite->rotation_, sin, cos);
             Matrix3 transform
