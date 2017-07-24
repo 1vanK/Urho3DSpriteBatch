@@ -182,7 +182,7 @@ public:
 
         spriteBatch_->Draw(head, Vector2(200.0f, 200.0f), nullptr, Color::WHITE, 0.0f, Vector2::ZERO, Vector2::ONE, SBE_FLIP_BOTH);
 
-        float scale = cos(scale_) + 1.0f; // cos возвращает значения в диапазоне [-1, 1], значит scale в будет в диапазоне [0, 2].
+        float scale = cos(scale_) + 1.0f; // cos возвращает значения в диапазоне [-1, 1], значит scale будет в диапазоне [0, 2].
         Vector2 origin = Vector2(head->GetWidth() * 0.5f, head->GetHeight() * 0.5f);
         spriteBatch_->Draw(head, Vector2(400.0f, 300.0f), nullptr, Color::WHITE, angle_, origin, Vector2(scale, scale));
 
