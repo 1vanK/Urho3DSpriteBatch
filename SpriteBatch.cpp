@@ -121,7 +121,7 @@ void SpriteBatch::Begin(BlendMode blendMode, CompareMode compareMode, float z, C
 }
 
 void SpriteBatch::Draw(Texture2D* texture, const Rect& destination, Rect* source,
-    const Color& color, float rotation, const Vector2& origin, float scale, SBEffects effects)
+    const Color& color, float rotation, const Vector2& origin, const Vector2& scale, SBEffects effects)
 {
     SBSprite sprite
     {
@@ -141,7 +141,7 @@ void SpriteBatch::Draw(Texture2D* texture, const Rect& destination, Rect* source
 }
 
 void SpriteBatch::Draw(Texture2D* texture, const Vector2& position, Rect* source,
-    const Color& color, float rotation, const Vector2& origin, float scale, SBEffects effects)
+    const Color& color, float rotation, const Vector2& origin, const Vector2& scale, SBEffects effects)
 {
     Rect destination
     {
@@ -155,7 +155,7 @@ void SpriteBatch::Draw(Texture2D* texture, const Vector2& position, Rect* source
 }
 
 void SpriteBatch::DrawString(const String& text, Font* font, float fontSize, const Vector2& position,
-    const Color& color, float rotation, const Vector2& origin, float scale, SBEffects effects)
+    const Color& color, float rotation, const Vector2& origin, const Vector2& scale, SBEffects effects)
 {
     PODVector<unsigned> unicodeText;
     for (unsigned i = 0; i < text.Length();)
@@ -288,7 +288,7 @@ Matrix4 SpriteBatch::GetViewProjMatrix()
     // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
     float pixelWidth  = 2.0f / w; // Двойка так как длина отрезка [-1, 1] равна двум.
     float pixelHeight = 2.0f / h; // Подробности: https://github.com/1vanK/Urho3DTutor01 .
-    Vector2 offset = graphics_->GetPixelUVOffset();
+    Vector2 offset = graphics_->GetPixelUVOffset(); // Возвращает (0.5f, 0.5f) для DirectX 9 и (0.0f, 0.0f) в остальных случаях.
     offset.x_ *= pixelWidth;
     offset.y_ *= pixelHeight;
 
@@ -353,9 +353,9 @@ void SpriteBatch::RenderPortion(unsigned start, unsigned count)
         Rect src = sprite->source_;
         Vector2 origin = sprite->origin_;
         SBEffects effects = sprite->effects_;
-        float scale = sprite->scale_;
+        Vector2 scale = sprite->scale_;
 
-        if (sprite->rotation_ == 0.0f && sprite->scale_ == 1.0f)
+        if (sprite->rotation_ == 0.0f && sprite->scale_ == Vector2::ONE)
         {
             // Если спрайт не повернут, то прорисовка очень проста.
             dest.min_ -= origin;
@@ -381,9 +381,9 @@ void SpriteBatch::RenderPortion(unsigned start, unsigned count)
             SinCos(sprite->rotation_, sin, cos);
             Matrix3 transform
             {
-                cos * scale, -sin * scale,  dest.min_.x_,
-                sin * scale,  cos * scale,  dest.min_.y_,
-                0.0f,         0.0f,         1.0f
+                cos * scale.x_, -sin * scale.y_,  dest.min_.x_,
+                sin * scale.x_,  cos * scale.y_,  dest.min_.y_,
+                0.0f,            0.0f,            1.0f
             };
 
             // В движке вектор умножается на матрицу справа (в отличие от шейдеров).

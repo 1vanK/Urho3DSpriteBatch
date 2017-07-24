@@ -180,20 +180,20 @@ public:
         for (int i = 0; i < 20000; i++)
             spriteBatch_->Draw(ball, Vector2(Random(0.0f, 800.0f), Random(0.0f, 600.0f)), nullptr, Color::WHITE);
 
-        spriteBatch_->Draw(head, Vector2(200.0f, 200.0f), nullptr, Color::WHITE, 0.0f, Vector2::ZERO, 1.0f, SBE_FLIP_BOTH);
+        spriteBatch_->Draw(head, Vector2(200.0f, 200.0f), nullptr, Color::WHITE, 0.0f, Vector2::ZERO, Vector2::ONE, SBE_FLIP_BOTH);
 
-        float scale = cos(scale_) * 2.0f;
+        float scale = cos(scale_) + 1.0f; // cos возвращает значения в диапазоне [-1, 1], значит scale в будет в диапазоне [0, 2].
         Vector2 origin = Vector2(head->GetWidth() * 0.5f, head->GetHeight() * 0.5f);
-        spriteBatch_->Draw(head, Vector2(400.0f, 300.0f), nullptr, Color::WHITE, angle_, origin, scale);
+        spriteBatch_->Draw(head, Vector2(400.0f, 300.0f), nullptr, Color::WHITE, angle_, origin, Vector2(scale, scale));
 
         spriteBatch_->DrawString(String("FPS: ") + String(fpsValue_),
             CACHE->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40.0f, Vector2(50.0f, 50.0f), Color::RED);
 
         spriteBatch_->DrawString("Mirrored Text", CACHE->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40.0f,
-            Vector2(250.0f, 200.0f), Color::RED, 0.0f, Vector2::ZERO, 1.0f, SBE_FLIP_BOTH);
+            Vector2(250.0f, 200.0f), Color::RED, 0.0f, Vector2::ZERO, Vector2::ONE, SBE_FLIP_BOTH);
 
         spriteBatch_->DrawString("Some Text", CACHE->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 40.0f,
-            Vector2(400.0f, 300.0f), Color::BLUE, angle_, Vector2::ZERO, scale);
+            Vector2(400.0f, 300.0f), Color::BLUE, angle_, Vector2::ZERO, Vector2(scale, scale));
 
         spriteBatch_->End();
     }

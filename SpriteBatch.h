@@ -68,13 +68,13 @@ public:
     void End();
 
     void Draw(Texture2D* texture, const Rect& destination, Rect* source = nullptr, const Color& color = Color::WHITE,
-        float rotation = 0.0f, const Vector2& origin = Vector2::ZERO, float scale = 1.0f, SBEffects effects = SBE_NONE);
+        float rotation = 0.0f, const Vector2& origin = Vector2::ZERO, const Vector2& scale = Vector2::ONE, SBEffects effects = SBE_NONE);
 
     void Draw(Texture2D* texture, const Vector2& position, Rect* source = nullptr, const Color& color = Color::WHITE,
-        float rotation = 0.0f, const Vector2 &origin = Vector2::ZERO, float scale = 1.0f, SBEffects effects = SBE_NONE);
+        float rotation = 0.0f, const Vector2 &origin = Vector2::ZERO, const Vector2& scale = Vector2::ONE, SBEffects effects = SBE_NONE);
 
     void DrawString(const String& text, Font* font, float fontSize, const Vector2& position, const Color& color = Color::WHITE,
-        float rotation = 0.0f, const Vector2& origin = Vector2::ZERO, float scale = 1.0f, SBEffects effects = SBE_NONE);
+        float rotation = 0.0f, const Vector2& origin = Vector2::ZERO, const Vector2& scale = Vector2::ONE, SBEffects effects = SBE_NONE);
 
     // Переводит реальные координаты в виртуальные. Используется для курсора мыши.
     Vector2 GetVirtualPos(const Vector2& realPos);
@@ -89,7 +89,7 @@ private:
         Color color_;
         float rotation_;
         Vector2 origin_;
-        float scale_;
+        Vector2 scale_;
         SBEffects effects_;
 
         // Для отрисовки текста и обычных спрайтов нужны разные шейдеры.
