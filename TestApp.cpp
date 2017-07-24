@@ -35,12 +35,10 @@ public:
 
     void Setup()
     {
-        engineParameters_["WindowTitle"] = GetTypeName();
-        //engineParameters_["LogName"] = FILE_SYSTEM->GetAppPreferencesDir("urho3d", "logs") + GetTypeName() + ".log";
-        engineParameters_["FullScreen"] = false;
-        engineParameters_["WindowWidth"] = 800;
-        engineParameters_["WindowHeight"] = 600;
-        //engineParameters_["ResourcePaths"] = "GameData;Data;CoreData";
+        engineParameters_[EP_FULL_SCREEN] = false;
+        engineParameters_[EP_WINDOW_WIDTH] = 800;
+        engineParameters_[EP_WINDOW_HEIGHT] = 600;
+        engineParameters_[EP_FRAME_LIMITER] = false;
     }
 
     void Start()

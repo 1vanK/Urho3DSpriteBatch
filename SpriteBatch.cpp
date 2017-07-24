@@ -355,28 +355,29 @@ void SpriteBatch::RenderPortion(unsigned start, unsigned count)
         SBEffects effects = sprite->effects_;
         Vector2 scale = sprite->scale_;
 
+        // Если спрайт не повернут и не отмаcштабирован, то прорисовка очень проста.
         if (sprite->rotation_ == 0.0f && sprite->scale_ == Vector2::ONE)
         {
-            // Если спрайт не повернут, то прорисовка очень проста.
+            // Сдвигаем спрайт на -origin.
             dest.min_ -= origin;
             dest.max_ -= origin;
 
-            // Для экрана ось Y направлена вниз, поэтому лицевая грань (по часовой стрелке) задана так.
+            // Лицевая грань задается по часовой стрелке. Учитываем, что ось Y направлена вниз.
             // Но нет большой разницы, так как спрайты двусторонние.
-            vertices[i * VERTICES_PER_SPRITE + 0].position_ = Vector3(dest.min_.x_, dest.min_.y_, z_);
-            vertices[i * VERTICES_PER_SPRITE + 1].position_ = Vector3(dest.max_.x_, dest.min_.y_, z_);
-            vertices[i * VERTICES_PER_SPRITE + 2].position_ = Vector3(dest.max_.x_, dest.max_.y_, z_);
-            vertices[i * VERTICES_PER_SPRITE + 3].position_ = Vector3(dest.min_.x_, dest.max_.y_, z_);
+            vertices[i * VERTICES_PER_SPRITE + 0].position_ = Vector3(dest.min_.x_, dest.min_.y_, z_); // Верхний левый угол спрайта.
+            vertices[i * VERTICES_PER_SPRITE + 1].position_ = Vector3(dest.max_.x_, dest.min_.y_, z_); // Правый верхний угол.
+            vertices[i * VERTICES_PER_SPRITE + 2].position_ = Vector3(dest.max_.x_, dest.max_.y_, z_); // Нижний правый угол.
+            vertices[i * VERTICES_PER_SPRITE + 3].position_ = Vector3(dest.min_.x_, dest.max_.y_, z_); // Левый нижний угол.
         }
         else
         {
             // Если есть угол поворота, то определяем локальные координаты вершин спрайта,
-            // то есть сдвигаем все вершины спрайта на координату верхнего левого угла, чтобы
+            // то есть сдвигаем все вершины целевого спрайта на координату верхнего левого угла, чтобы
             // она находилась в начале координат (origin по умолчанию), а потом еще на указанный origin.
             Rect local(-origin, dest.max_ - dest.min_ - origin);
 
             // Матрица масштабирует и поворачивает вершину в локальных координатах, а затем
-            // смещает ее назад в мировые координаты.
+            // смещает ее требуемые в мировые координаты.
             float sin, cos;
             SinCos(sprite->rotation_, sin, cos);
             Matrix3 transform
@@ -385,25 +386,26 @@ void SpriteBatch::RenderPortion(unsigned start, unsigned count)
                 sin * scale.x_,  cos * scale.y_,  dest.min_.y_,
                 0.0f,            0.0f,            1.0f
             };
+            // Пробовал объединить смещение на -origin и трансформацию в одну матрицу, но потерял несколько ФПС из-за кучи дополнительных
+            // умножений при составлении матрицы.
 
-            // В движке вектор умножается на матрицу справа (в отличие от шейдеров).
-            // TransformedVector = TranslationMatrix * RotationMatrix * ScalingMatrix * OriginalVector.
-            Vector3 v0(local.min_.x_, local.min_.y_, 1); // Вычисления в однородных координатах.
+            // В движке вектор умножается на матрицу справа (в отличие от шейдеров). Вычисления в однородных координатах.
+            Vector3 v0(local.min_.x_, local.min_.y_, 1.0f); // Верхний левый угол спрайта.
             v0 = transform * v0;
             v0.z_ = z_;
             vertices[i * VERTICES_PER_SPRITE + 0].position_ = v0;
 
-            Vector3 v1(local.max_.x_, local.min_.y_, 1);
+            Vector3 v1(local.max_.x_, local.min_.y_, 1.0f); // Правый верхний угол.
             v1 = transform * v1;
             v1.z_ = z_;
             vertices[i * VERTICES_PER_SPRITE + 1].position_ = v1;
 
-            Vector3 v2(local.max_.x_, local.max_.y_, 1);
+            Vector3 v2(local.max_.x_, local.max_.y_, 1.0f); // Нижний правый угол.
             v2 = transform * v2;
             v2.z_ = z_;
             vertices[i * VERTICES_PER_SPRITE + 2].position_ = v2;
 
-            Vector3 v3(local.min_.x_, local.max_.y_, 1);
+            Vector3 v3(local.min_.x_, local.max_.y_, 1.0f); // Левый нижний угол.
             v3 = transform * v3;
             v3.z_ = z_;
             vertices[i * VERTICES_PER_SPRITE + 3].position_ = v3;
