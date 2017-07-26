@@ -44,3 +44,8 @@ void Start()
 ```
 ![Screenshot3](https://github.com/1vanK/Urho3DSpriteBatch/raw/master/Screen03.png)
 
+You can change portition size (max count of sprites per Draw Call)
+```
+spriteBatch_ = new SpriteBatch(context_, 600);
+```
+The optimal value depends very much on used API and specific PC.
