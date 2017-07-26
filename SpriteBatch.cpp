@@ -16,12 +16,6 @@
 // в вершинном буфере каждый спрайт занимает 4 элемента.
 #define VERTICES_PER_SPRITE 4
 
-// Максимальное число выводимых за один раз спрайтов ограничивается
-// количеством уникальных индексов. Так как используются 16-битные
-// индексы и требуется 4 разных индекса для каждого спрайта,
-// то это значение равно (0xFFFF + 1) / 4.
-#define MAX_PORTION_SIZE 16384
-
 namespace Urho3D
 {
 
@@ -33,8 +27,9 @@ struct SBVertex
     Vector2 uv_;
 };
 
-SpriteBatch::SpriteBatch(Context *context) :
+SpriteBatch::SpriteBatch(Context *context, unsigned maxPortionSize) :
     Object(context),
+    maxPortionSize_(maxPortionSize),
     indexBuffer_(new IndexBuffer(context_)),
     vertexBuffer_(new VertexBuffer(context_))
 {
@@ -43,9 +38,9 @@ SpriteBatch::SpriteBatch(Context *context) :
     indexBuffer_->SetShadowed(true);
 
     // Индексный буфер никогда не меняется, поэтому мы можем его сразу заполнить.
-    indexBuffer_->SetSize(MAX_PORTION_SIZE * INDICES_PER_SPRITE, false);
+    indexBuffer_->SetSize(maxPortionSize_ * INDICES_PER_SPRITE, false);
     unsigned short* buffer = (unsigned short*)indexBuffer_->Lock(0, indexBuffer_->GetIndexCount());
-    for (unsigned i = 0; i < MAX_PORTION_SIZE; i++)
+    for (unsigned i = 0; i < maxPortionSize_; i++)
     {
         // Первый треугольник спрайта.
         buffer[i * INDICES_PER_SPRITE + 0] = i * VERTICES_PER_SPRITE + 0;
@@ -59,7 +54,7 @@ SpriteBatch::SpriteBatch(Context *context) :
     }
     indexBuffer_->Unlock();
 
-    vertexBuffer_->SetSize(MAX_PORTION_SIZE * VERTICES_PER_SPRITE,
+    vertexBuffer_->SetSize(maxPortionSize_ * VERTICES_PER_SPRITE,
                            MASK_POSITION | MASK_COLOR | MASK_TEXCOORD1, true);
 
     graphics_ = GetSubsystem<Graphics>();
@@ -304,7 +299,7 @@ unsigned SpriteBatch::GetPortionLength(unsigned start)
 
     while (true)
     {
-        if (count >= MAX_PORTION_SIZE)
+        if (count >= maxPortionSize_)
             break;
 
         unsigned nextSpriteIndex = start + count;

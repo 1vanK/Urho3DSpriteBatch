@@ -59,7 +59,7 @@ public:
     // реальные размеры экрана.
     IntVector2 virtualScreenSize_ = IntVector2(0, 0);
 
-    SpriteBatch(Context *context);
+    SpriteBatch(Context *context, unsigned maxPortionSize = 500);
     virtual ~SpriteBatch();
 
     // Если указать камеру, то SpriteBatch будет рендериться в мировых координатах.
@@ -79,7 +79,7 @@ public:
     // Переводит реальные координаты в виртуальные. Используется для курсора мыши.
     Vector2 GetVirtualPos(const Vector2& realPos);
 
-private:
+protected:
     // Отдельный спрайт в очереди на отрисовку.
     struct SBSprite
     {
@@ -96,6 +96,10 @@ private:
         ShaderVariation* vertexShader_;
         ShaderVariation* pixelShader_;
     };
+
+    // Размер порции (максимальное число спрайтов, выводимых за один DrawCall).
+    // Оптимальное значение СИЛЬНО зависит от конкретного оборудования и используемого API.
+    unsigned maxPortionSize_;
 
     // Индексный буфер создается и заполняется один раз, а потом только используется.
     SharedPtr<IndexBuffer> indexBuffer_;

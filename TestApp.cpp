@@ -51,7 +51,7 @@ public:
         DebugHud* debugHud = engine_->CreateDebugHud();
         debugHud->SetDefaultStyle(xmlFile);
 
-        spriteBatch_ = new SpriteBatch(context_);
+        spriteBatch_ = new SpriteBatch(context_, 600);
     }
 
     void SetupViewport()
